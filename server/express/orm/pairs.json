@@ -1,0 +1,14 @@
+{
+  "cloud": [
+    ["ORCL", "IBM"],
+    ["PINS", "SNAP"],
+    ["NVDA","AMD"]
+  ],
+  "retail": [
+    ["ZUMZ","SHOP"],
+    ["ETSY","SHOP"]
+  ],
+  "travel": [
+    ["EXPE","ABNB"]
+  ]
+}
