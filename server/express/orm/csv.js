@@ -46,7 +46,39 @@ class CSV {
       .on('error', (error) => {
         callback(null, error);
       })
-  }  
+  } 
+
+  async readCBreport(asset, action) {
+    
+    return new Promise((resolve) => {
+      this.parse((cbData) => resolve(cbData));
+    })
+  }
+
+  async jsonToCSV(jsonData, filePath) {
+    if (!jsonData || !jsonData.length) return;
+    const csvRows = [];
+    const headers = Object.keys(jsonData[0]);
+    const columns = headers.reduce((memo,item) => {
+      const col = {
+        id: item,
+        title: item
+      }
+      memo.push(col);
+      return memo;
+    }, [])
+    const csvWriter = createObjectCsvWriter({
+      path: filePath,
+      header: columns
+    });
+    try {
+      const csvRes = await csvWriter.writeRecords(jsonData);
+      console.log('The CSV file was written successfully');
+      return csvRes
+    } catch (err) {
+      console.error('Error writing CSV file', err);
+    }
+  }
 }
 
 module.exports.CSV = CSV;

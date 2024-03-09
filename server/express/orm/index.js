@@ -68,9 +68,6 @@ class PolygonAPI {
   }
 
   async fetchHistoricalData(symbol) {
-    try {
-      const response = await this.client.reference.t
-    }
   }
 
   async getCorrelations({pair}) {
