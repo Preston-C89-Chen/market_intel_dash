@@ -1,6 +1,41 @@
 import { Icons } from "@/components/icons";
 import { NavItem, SidebarNavItem } from "@/types";
 
+export type COT =  {
+  asset: string,
+  asOfDate: string,
+  cftcMarketCode: string,
+  noncommercialPositionsLongAll: string,
+  noncommercialPositionsShortAll: string,
+  commercialPositionsLongAll: string,
+  commercialPositionsShortAll: string,
+  totalReportablePositionsLongAll: string,
+  totalReportablePositionsShortAll: string,
+  nonreportablePositionsLongAll: string,
+  nonreportablePositionsShortAll: string,
+  openInterestOld: string,
+  noncommercialPositionsLongOld: string,
+  
+  noncommercialPositionsShortOld: string,
+  commercialPositionsLongOld: string,
+  commercialPositionsShortOld: string,
+  totalReportablePositionsLongOld: string,
+  changeInOpenInterestAll: string,
+  percentOfOpenInterestAll: string,
+  percentOfOICommercialShortAll: string,
+  percentOfOICommercialLongAll: string,
+  percentOfOINoncommercialLongAll: string,
+  percentOfOINoncommercialShortAll: string,
+  tradersNoncommercialLongAll: string,
+  tradersNoncommercialShortAll: string,
+  tradersCommercialLongAll: string,
+  tradersTotalOld: string,
+  contractUnits: string,
+  openInterestAll: string,
+}
+
+export type reportCOT = COT[];
+
 export type User = {
   id: number;
   name: string;
@@ -9,6 +44,7 @@ export type User = {
   verified: boolean;
   status: string;
 };
+
 export const users: User[] = [
   {
     id: 1,
@@ -117,6 +153,12 @@ export const navItems: NavItem[] = [
     href: "/dashboard",
     icon: "dashboard",
     label: "Dashboard",
+  },
+  {
+    title: "COT Report",
+    href: "/dashboard/cot",
+    icon: "page",
+    label: "ccot"
   },
   {
     title: "User",
