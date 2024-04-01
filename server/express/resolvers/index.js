@@ -19,8 +19,6 @@ const fetchEarningsData = async ({fromDate,toDate}) => {
   }
 };
 
-
-
 const resolvers = {
   Query: {
     balanceSheets: async(_, {symbol},) => {
@@ -43,6 +41,20 @@ const resolvers = {
           data = await supaClient.fetch_earnings(from,to)
         } else {
           throw new Error("Must provide from to arguments, or symbol")
+        }
+        return data;
+      } catch(err) {
+        throw err;
+      }
+    },
+    getCOTReports: async(_,{from, to, asset}) => {
+      const supaClient = new SupabaseAPI();
+      try {
+        let data;
+        if (asset && from && to) {
+          data = await supaClient.fetch_cot(from, to, asset);
+        } else if (from && to) {
+          data = await supaClient.fetch_cot(from, to);
         }
         return data;
       } catch(err) {

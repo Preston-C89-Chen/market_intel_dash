@@ -4,7 +4,7 @@ const { addMocksToSchema } = require('@graphql-tools/mock');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const resolvers = require("./resolvers/index")
 const typeDefs = require('./schemas/index');
-
+require('dotenv').config();
 const mocks = {
   Query: () => ({
     tracksForHome: () => [...new Array(6)],

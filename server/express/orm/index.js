@@ -10,10 +10,8 @@ const { RESTDataSource } = require('@apollo/datasource-rest');
 const { createClient } = require('@supabase/supabase-js');
 const { CSV } = require('./csv');
 const { restClient } = require('@polygon.io/client-js');
-
-require('dotenv').config();
-
-
+const { table } = require('console');
+require('dotenv').config({path:'../.env'});
 class FinancialReportsAPI extends RESTDataSource { 
   constructor() {
     if (FinancialReportsAPI.instance) {
@@ -91,7 +89,7 @@ class SupabaseAPI {
     }
 
     SupabaseAPI.instance = this;
-    this.apiKey = process.env.SUPA_KEY || ""
+    this.apiKey = process.env.SUPA_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiYWJwY3FneGh4cHB2ZXRubmdiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5OTMwNDI3MCwiZXhwIjoyMDE0ODgwMjcwfQ.mwzN1UIqaTFU0q1hGkhfBbkB1FkJ0kUhnqgKVUVOVcU"
     this.client = {}
     this._init();
   }
@@ -113,16 +111,15 @@ class SupabaseAPI {
     }
   }
 
-  async insert_earnings(earningsData) {
-    console.log("earningsData",earningsData)
+  async insert_data_table(tableName,tableData) {
     try {
-      const { data: insertData, error } = await this.client
-      .from('earnings')
-      .insert(earningsData)
+      const { data: data, error } = await this.client
+      .from(tableName)
+      .insert(tableData)
       .select();
-      console.log('Batch insert success:', insertData);
+      console.log("batch insert successful")
       if (error) throw new Error(error.message);
-      return insertData;
+      return data;
     } catch (err) {
       console.error('Error Performing batch insert:', err)
     }
@@ -143,6 +140,26 @@ class SupabaseAPI {
         return data;
     } catch(error) {
       console.error('Error Performing batch insert:', error)
+    }
+  }
+
+  async fetch_cot(from,to,asset) {
+    try {
+      const {data, error } = await this.client
+      .from("cot_report")
+      .select("*")
+      .gte("asOfDate", from)
+      .lte("asOfDate", to)
+      if (error) {
+        console.error('Error fetching earnings:', error);
+        return null;
+      }
+      return data
+    } catch (err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
     }
   }
 
@@ -197,9 +214,19 @@ async function fetchPoly() {
   console.log(res)
 }
 
+async function fetchCOT() {
+  const from = "2024-02-27"
+  const to = "2024-02-27"
+  const supaClient = new SupabaseAPI();
+  const res = await supaClient.fetch_cot(from,to);
+  console.log("got cot",res )
+  return res;
+}
 
+//console.log("supaKey",process.env);
+//fetchCOT()
 //fetchCreateEarningsCSV().catch(console.error);
 //fetchEarnings().catch(console.error);
-fetchPoly()
+//fetchPoly()
 module.exports.FinancialReportsAPI = FinancialReportsAPI;
 module.exports.SupabaseAPI = SupabaseAPI;

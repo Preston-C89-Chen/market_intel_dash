@@ -1,20 +1,53 @@
 const cotRows = [
   "S&P 500 Consolidated - CHICAGO MERCANTILE EXCHANGE",
-  "GOLD - COMMODITY EXCHANGE INC.",
   "NASDAQ-100 Consolidated - CHICAGO MERCANTILE EXCHANGE",
   "MICRO E-MINI RUSSELL 2000 INDX - CHICAGO MERCANTILE EXCHANGE",
+  "DJIA Consolidated - CHICAGO BOARD OF TRADE",
+  "GOLD - COMMODITY EXCHANGE INC.",
+  "SILVER - COMMODITY EXCHANGE INC.",
+  "COPPER- #1 - COMMODITY EXCHANGE INC.",
+  "PALLADIUM - NEW YORK MERCANTILE EXCHANGE",
+  "PLATINUM - NEW YORK MERCANTILE EXCHANGE",
+  "SUGAR NO. 11 - ICE FUTURES U.S.",
+  "CRUDE OIL",
   "ULTRA UST BOND - CHICAGO BOARD OF TRADE",
   "JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE",
-]
+  "SWISS FRANC - CHICAGO MERCANTILE EXCHANGE",
+  "BRITISH POUND - CHICAGO MERCANTILE EXCHANGE",
+  "USD INDEX - ICE FUTURES U.S.",
+  "WHEAT-SRW - CHICAGO BOARD OF TRADE",
+  "WHEAT-HRW - CHICAGO BOARD OF TRADE",
+  "COCOA - ICE FUTURES U.S.",
+  "CORN - CHICAGO BOARD OF TRADE",
+  "SOYBEANS - CHICAGO BOARD OF TRADE",
+  "NAT GAS NYME - NEW YORK MERCANTILE EXCHANGE",
+  "GASOLINE RBOB - NEW YORK MERCANTILE EXCHANGE",
+  "FEEDER CATTLE - CHICAGO MERCANTILE EXCHANGE"
+];
+
+const cotCategories = {
+  "indexes": [],
+  "softs": [],
+  "meats": [],
+  "metals": [],
+  "fiatCurrency": [],
+  "cryptoCurrency": []
+};
 
 const cotCols = {
+  "Market and Exchange Names": "asset",
   "% OF OI-Commercial-Long (All)": "percentOfOICommercialLongAll",
+  "% OF OI-Commercial-Short (All)": "percentOfOICommercialShortAll",
   "% OF OI-Noncommercial-Long (All)": "percentOfOINoncommercialLongAll",
   "% OF OI-Noncommercial-Short (All)": "percentOfOINoncommercialShortAll",
   "% OF Open Interest (OI) (All)": "percentOfOpenInterestAll",
   "As of Date in Form YYYY-MM-DD": "asOfDate",
   "CFTC Market Code in Initials": "cftcMarketCode",
   "Change in Open Interest (All)": "changeInOpenInterestAll",
+  "Change in Commercial-Long (All)": "changeInCommercialLongAll",
+  "Change in Commercial-Short (All)": "changeInCommercialShortAll",
+  "Change in Noncommercial-Long (All)": "changeInNonCommercialLongAll",
+  "Change in Noncommercial-Short(All)": "changeInCommercialShortAll",
   "Commercial Positions-Long (All)": "commercialPositionsLongAll",
   "Commercial Positions-Long (Old)": "commercialPositionsLongOld",
   "Commercial Positions-Short (All)": "commercialPositionsShortAll",
@@ -28,7 +61,7 @@ const cotCols = {
   "Nonreportable Positions-Short (All)": "nonreportablePositionsShortAll",
   "Open Interest (All)": "openInterestAll",
   "Open Interest (Old)": "openInterestOld",
-  "raders-Commercial-Short (All)": "tradersCommercialShortAll",
+  "Traders-Commercial-Short (All)": "tradersCommercialShortAll",
   "Total Reportable Positions-Long (All)": "totalReportablePositionsLongAll",
   "Total Reportable Positions-Long (Old)": "totalReportablePositionsLongOld",
   "Total Reportable Positions-Short (All)": "totalReportablePositionsShortAll",
@@ -70,7 +103,8 @@ const colFilter = [
   "Traders-Commercial-Long (All)",
   "raders-Commercial-Short (All)",
   "Traders-Total (All)",
-  "Traders-Total (Old)"
+  "Traders-Total (Old)",
+  "Market and Exchange Names",
 ];
 
 const labels = [
@@ -107,5 +141,6 @@ const labels = [
 ];
 
 module.exports = {
-  cotCols
+  cotCols,
+  cotRows
 }

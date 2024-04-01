@@ -2,13 +2,18 @@
 import {
   ColumnDef,
   PaginationState,
+  SortingState,
   flexRender,
+  getSortedRowModel,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  ColumnFiltersState,
   useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import { matchSorter } from '@tanstack/match-sorter-utils';
+
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,7 +35,7 @@ import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
-import { columns } from './columns';
+import { columns, fuzzyFilter, uniqueFilter } from './columns';
 import { COT } from "@/constants/data";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -42,18 +47,21 @@ interface DataTableProps{
     [key: string]: string | string[] | undefined;
   };
 }
+const globalFilterFn = (rows, ids, query) => {
+  return matchSorter(rows, query, { keys: ids });
+};
 
 export function CotTable({
   data,
 }: DataTableProps) {
-  let searchKey = "";
+  let searchKey = "asset";
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  /* this can be used to get the selectedrows 
-  console.log("value", table.getFilteredSelectedRowModel()); */
+  const [globalFilter, setGlobalFilter] = React.useState('');
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [filteredRows,setTableRows] = useState([]);
 
-  // Create query string
   const createQueryString = React.useCallback(
     (params: Record<string, string | number | null>) => {
       const newSearchParams = new URLSearchParams(searchParams?.toString());
@@ -87,10 +95,21 @@ export function CotTable({
   const table = useReactTable({
     data,
     columns,
+    state: {
+      sorting,
+      globalFilter,
+    },
+    filterFns: {
+      fuzzy: fuzzyFilter 
+    },
+    globalFilterFn: fuzzyFilter,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     manualPagination: true,
-    manualFiltering: true,
+    manualFiltering: false,
+    onGlobalFilterChange: setGlobalFilter,
   });
 
   const searchValue = table.getColumn(searchKey)?.getFilterValue() as string;
@@ -121,14 +140,16 @@ export function CotTable({
     }
   }, [searchValue]);
 
+  useEffect(() => {
+    setTableRows(uniqueFilter(table.getRowModel().rows))
+  }, [globalFilter]);
+
   return (
     <>
       <Input
         placeholder={`Search ${searchKey}...`}
-        value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
-        onChange={(event) =>
-          table.getColumn(searchKey)?.setFilterValue(event.target.value)
-        }
+        value={globalFilter ?? ""}
+        onChange={e => setGlobalFilter(String(e.target.value))}
         className="w-full md:max-w-sm"
       />
       <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
@@ -138,22 +159,46 @@ export function CotTable({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
+                    <>
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={
+                          header.column.getCanSort()
+                            ? 'cursor-pointer select-none'
+                            : ''
+                        }
+                        onClick={header.column.getToggleSortingHandler()}
+                        title={
+                          header.column.getCanSort()
+                            ? header.column.getNextSortingOrder() === 'asc'
+                              ? 'Sort ascending'
+                              : header.column.getNextSortingOrder() === 'desc'
+                                ? 'Sort descending'
+                                : 'Clear sort'
+                            : undefined
+                        }
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {{
+                          asc: ' 🔼',
+                          desc: ' 🔽',
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+                    )}
+                  </TableHead>
+                    </>
                   );
                 })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {filteredRows.length ? (
+              filteredRows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}

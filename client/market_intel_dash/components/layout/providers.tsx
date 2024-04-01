@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import ThemeProvider from "./ThemeToggle/theme-provider";
+import { Provider as ReduxProvider } from 'react-redux';
 import { SessionProvider, SessionProviderProps } from "next-auth/react";
-
+import { store } from '../../redux/store';
 export default function Providers({
   session,
   children,
@@ -13,11 +14,13 @@ export default function Providers({
   {/* disabling auth for now  */}
   return (
     <>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <SessionProvider session={session}>
-          {children}
-        </SessionProvider>
-      </ThemeProvider>
+      <ReduxProvider store={store}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SessionProvider session={session}>
+            {children}
+          </SessionProvider>
+        </ThemeProvider>
+      </ReduxProvider>
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import { Task, useTaskStore } from "@/lib/store";
 import { hasDraggableData } from "@/lib/utils";
 import {
@@ -25,18 +24,18 @@ import { TaskCard } from "./task-card";
 // import { coordinateGetter } from "./multipleContainersKeyboardPreset";
 
 const defaultCols = [
-  {
-    id: "TODO" as const,
-    title: "Todo",
-  },
-  {
-    id: "IN_PROGRESS" as const,
-    title: "In progress",
-  },
-  {
-    id: "DONE" as const,
-    title: "Done",
-  },
+  // {
+  //   id: "TODO" as const,
+  //   title: "Todo",
+  // },
+  // {
+  //   id: "IN_PROGRESS" as const,
+  //   title: "In progress",
+  // },
+  // {
+  //   id: "DONE" as const,
+  //   title: "Done",
+  // },
 ] satisfies Column[];
 
 export type ColumnId = (typeof defaultCols)[number]["id"];

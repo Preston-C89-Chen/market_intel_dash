@@ -7,6 +7,8 @@ const typeDefs = gql`
     balanceSheets(symbol:String!): [BalanceSheet]
     balanceSheet(symbol:String!): BalanceSheet!
     earningsCalendar(from: String!,to:String!): [Earnings!]
+    getCOTReports(from: String!,to: String!): [COTReport]
+    getCOTReport(from: String!,to: String!, asset: String): COTReport
   }
 
   "A track is a group of Modules that teaches about a specific topic"
@@ -50,6 +52,40 @@ const typeDefs = gql`
     eps: String
     time: String
     revenue: String
+  }
+
+  type COTReport {
+    asset: String
+    asOfDate: String
+    cftcMarketCode: String
+    openInterestAll: String
+    noncommercialPositionsLongAll: String
+    noncommercialPositionsShortAll: String
+    commercialPositionsLongAll: String
+    commercialPositionsShortAll: String
+    totalReportablePositionsLongAll: String
+    totalReportablePositionsShortAll: String
+    nonreportablePositionsLongAll: String
+    nonreportablePositionsShortAll: String
+    openInterestOld: String
+    noncommercialPositionsLongOld: String
+    noncommercialPositionsShortOld: String
+    commercialPositionsLongOld: String
+    commercialPositionsShortOld: String
+    totalReportablePositionsLongOld: String
+    changeInOpenInterestAll: String
+    changeInCommercialLongAll: String
+    percentOfOpenInterestAll: String
+    changeInCommercialShortAll: String
+    percentOfOINoncommercialLongAll: String
+    percentOfOINoncommercialShortAll: String
+    percentOfOICommercialLongAll: String
+    percentOfOICommercialShortAll: String
+    tradersNoncommercialLongAll: String
+    tradersNoncommercialShortAll: String
+    tradersCommercialLongAll: String
+    tradersTotalOld: String
+    contractUnits: String
   }
 `;
 

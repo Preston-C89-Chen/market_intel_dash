@@ -15,7 +15,6 @@ export type COT =  {
   nonreportablePositionsShortAll: string,
   openInterestOld: string,
   noncommercialPositionsLongOld: string,
-  
   noncommercialPositionsShortOld: string,
   commercialPositionsLongOld: string,
   commercialPositionsShortOld: string,
@@ -158,10 +157,16 @@ export const navItems: NavItem[] = [
     title: "COT Report",
     href: "/dashboard/cot",
     icon: "page",
-    label: "ccot"
+    label: "cot"
   },
   {
-    title: "User",
+    title: "Seasonality",
+    href: "/dashboard/cot",
+    icon: "page",
+    label: "seasonality"
+  },
+  {
+    title: "Supply and Demand",
     href: "/dashboard/user",
     icon: "user",
     label: "user",
