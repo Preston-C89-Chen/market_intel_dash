@@ -3,7 +3,6 @@ const axios = require("axios");
 const fs = require('fs');
 const path = require('path');
 const { CSV } = require("../csv");
-import { useRouter } from 'next/router';
 const { cotCols, cotRows } = require("./futures.data");
 const { SupabaseAPI } = require('../index');
 const COT_COLS =
@@ -18,7 +17,7 @@ const getDateStr = () => {
 
 function writeJSON(txtData, dateStr) {
     const dateString = dateStr ? dateStr : getDateStr();
-    fs.writeFile(`./${dateString}_cftc.json`, JSON.stringify(txtData, null, 2), (err) => {
+    fs.writeFile(`./data/${dateString}_cftc.json`, JSON.stringify(txtData, null, 2), (err) => {
       if (err) {
         console.error('Failed to write JSON file:', err);
       } else {
@@ -54,8 +53,40 @@ function readJson(path) {
       }
       resolve(JSON.parse(data));
     });
-  })
- 
+  });
+}
+
+function parseData(data) {
+  // Split the line into fields. Adjust the regex as needed to handle edge cases
+  const fields = data.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+
+  // Print or process fields
+  fields.forEach((field, index) => {
+      console.log(`Field ${index + 1}: ${field}`);
+  });
+
+  // // For example, if you want to handle the data further:
+  // const structuredData = {
+  //     title: fields[0].replace(/"/g, ''),  // Remove double quotes
+  //     contractCode: fields[3],
+  //     contractType: fields[4],
+  //     openInterest: parseInt(fields[8], 10),
+  //     // Add more fields as per your requirement
+  // };
+
+}
+
+
+function readTxt(path) {
+  return new Promise((resolve,reject) => {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) {
+          console.error('Error reading the file:', err);
+          return;
+      }
+      resolve(parseData(data));
+    });
+  });
 }
 
 async function createCFTC(fileName) {
@@ -145,10 +176,77 @@ async function fetchCFTC(dateStr) {
     return err;
   }
 }
+
+
+function formatDate(date) {
+  // Format the date as mmddyy
+  let month = (date.getMonth() + 1).toString().padStart(2, '0');
+  let day = date.getDate().toString().padStart(2, '0');
+  let year = date.getFullYear().toString().slice(-2);
+  return month + day + year;
+}
+
+function getAllTuesdays(year) {
+  const tuesdays = [];
+
+  // Loop through each month from January (0) to December (11)
+  for (let month = 0; month < 12; month++) {
+      // Start from the first day of the month
+      let date = new Date(year, month, 1);
+
+      // Find the first Tuesday of the month
+      while (date.getDay() !== 2) {  // Day 2 of the week is Tuesday
+          date.setDate(date.getDate() + 1);
+      }
+
+      // Continue adding each subsequent Tuesday of the month to the list
+      while (date.getMonth() === month) {
+          tuesdays.push(formatDate(date));
+          date.setDate(date.getDate() + 7);  // Move to the next Tuesday
+      }
+  }
+
+  return tuesdays;
+}
+
+function createURL(year, date) {
+  return `https://www.cftc.gov/sites/default/files/files/dea/cotarchives/${year}/futures/deacmelf${date}.htm`;
+}
+
+function cotURLs(year) {
+  let tuesdays = getAllTuesdays(year);
+  let urls = [];
+  tuesdays.forEach((date) => {
+    let url = createURL(year, date);
+    urls.push({"date":date,"url":url});
+  })
+  return urls
+}
+
 //fetchCFTC("2024-03-26");
-uploadCFTC("./2024-03-26_cftc.json")
+//uploadCFTC("./2024-03-26_cftc.json")
 //parseCFTC();
 // const txtData = fetchCFTC();
 //getCBreport()
 
 //createCFTC()
+async function batchCFTC(year) {
+  try {
+    const urls = cotURLs(year);
+    urls.forEach(async (item) => {
+      const { data } = await axios.get(item.url);
+      if (data.length > 0) {
+        const cftcData = parseCftcData(data, COT_COLS, item.date);
+        console.log('rwriting json', cftcData)
+        writeJSON(cftcData, item.date)
+        return cftcData;
+      }
+    })
+    
+  } catch(err) {
+    console.log(err)
+    return err;
+  }
+}
+
+readTxt("./f_2023.txt")
