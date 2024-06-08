@@ -19,15 +19,16 @@ export default function page({ searchParams: paramsProps }) {
     const dateStr =  "2024-03-26";
     dispatch(fetchCOTReportAction({from:dateStr,to:dateStr}))
   },[dispatch])
-  
+
+  console.log(status)
   if (status === 'loading') {
     return (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <Skeleton className="h-[500px] w-100 rounded-xl" />
+        {/* <Skeleton className="h-[500px] w-100 rounded-xl" /> */}
       </div>
     )
   } else if (status === 'failed') {
-    return <div>Error: {error}</div>;
+    return <div>Error</div>;
   }
 
   return (

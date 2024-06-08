@@ -60,6 +60,22 @@ export const columns: ColumnDef<COT>[] = [
     header: "% Of Commercial Short"
   },
   {
+    accessorKey:"noncommercialPositionsLongAll",
+    header: "Non Commercial Long"
+  },
+  {
+    accessorKey:"noncommercialPositionsShortAll",
+    header: "Non Commercial Short"
+  },
+  {
+    accessorKey:"percentOfOINoncommercialLongAll",
+    header: "% None Commercial Long"
+  },
+  {
+    accessorKey:"percentOfOINoncommercialShortAll",
+    header: "% Non Commercial Short"
+  },
+  {
     accessorKey: "changeInOpenInterestAll",
     header: "Change in Open Interest"
   },
@@ -68,6 +84,7 @@ export const columns: ColumnDef<COT>[] = [
     header: "Open Interest All"
   }
 ];
+
 
 export const columnsRating:ColumnDef<> = []
 

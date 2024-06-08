@@ -56,24 +56,48 @@ function readJson(path) {
   });
 }
 
-function parseData(data) {
+function parseData(line) {
   // Split the line into fields. Adjust the regex as needed to handle edge cases
-  const fields = data.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+  const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+  if (!values) return [];
 
-  // Print or process fields
-  fields.forEach((field, index) => {
-      console.log(`Field ${index + 1}: ${field}`);
+  return values.reduce((obj, value, i) => {
+    if (COT_COLS[i]) {
+      if (COT_COLS[i] === "As of Date in Form YYYY-MM-DD") {
+        
+      }
+      obj[COT_COLS[i]] = value;
+    }
+    return obj
+  }, {});
+ 
+}
+
+function processFile(filePath,symbol) {
+  fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+          console.error('Error reading the file:', err);
+          return;
+      }
+      const lines = data.split('\n');
+      const parsedData = lines.map(parseData);
+      const groupedData = parsedData.reduce((memo,acc) => {
+        let date = acc["As of Date in Form YYYY-MM-DD"];
+        if(date in memo) {
+          let dataName = acc["Market and Exchange Names"];
+          if (symbol && symbol === "nq" && dataName.includes("NASDAQ MINI") ) {
+            memo[date].push(acc);
+          }
+        } else {
+          memo[date] = [];
+        }
+        return memo;
+      }, {});
+      writeJSON(groupedData,"NQ-2023")
+      //console.log(groupedData);
+      return groupedData;
+      // Optionally, you can further process `parsedData` or save it to another file
   });
-
-  // // For example, if you want to handle the data further:
-  // const structuredData = {
-  //     title: fields[0].replace(/"/g, ''),  // Remove double quotes
-  //     contractCode: fields[3],
-  //     contractType: fields[4],
-  //     openInterest: parseInt(fields[8], 10),
-  //     // Add more fields as per your requirement
-  // };
-
 }
 
 
@@ -160,8 +184,6 @@ async function uploadCFTC(fileName) {
   return result;
 }
 
-
-
 async function fetchCFTC(dateStr) {
   try {
     const { data } = await axios.get("https://www.cftc.gov/dea/newcot/deacom.txt");
@@ -178,16 +200,19 @@ async function fetchCFTC(dateStr) {
 }
 
 
-function formatDate(date) {
+function formatDate(date,slashes) {
   // Format the date as mmddyy
   let month = (date.getMonth() + 1).toString().padStart(2, '0');
   let day = date.getDate().toString().padStart(2, '0');
-  let year = date.getFullYear().toString().slice(-2);
+  let year = date.getFullYear().toString();
+  if (slashes) {
+    return `${month}/${day}/${year}`;
+  }
   return month + day + year;
 }
 
-function getAllTuesdays(year) {
-  const tuesdays = [];
+function getAllWeekday(year,dayNumber) {
+  const weekdays = [];
 
   // Loop through each month from January (0) to December (11)
   for (let month = 0; month < 12; month++) {
@@ -195,18 +220,18 @@ function getAllTuesdays(year) {
       let date = new Date(year, month, 1);
 
       // Find the first Tuesday of the month
-      while (date.getDay() !== 2) {  // Day 2 of the week is Tuesday
+      while (date.getDay() !== dayNumber) {  // Day 2 of the week is Tuesday
           date.setDate(date.getDate() + 1);
       }
 
       // Continue adding each subsequent Tuesday of the month to the list
       while (date.getMonth() === month) {
-          tuesdays.push(formatDate(date));
+        weekdays.push(formatDate(date,true));
           date.setDate(date.getDate() + 7);  // Move to the next Tuesday
       }
   }
 
-  return tuesdays;
+  return weekdays;
 }
 
 function createURL(year, date) {
@@ -214,7 +239,7 @@ function createURL(year, date) {
 }
 
 function cotURLs(year) {
-  let tuesdays = getAllTuesdays(year);
+  let tuesdays = getAllWeekday(year,2);
   let urls = [];
   tuesdays.forEach((date) => {
     let url = createURL(year, date);
@@ -223,13 +248,27 @@ function cotURLs(year) {
   return urls
 }
 
-//fetchCFTC("2024-03-26");
-//uploadCFTC("./2024-03-26_cftc.json")
+//fetchCFTC("2024-05-07");
+//uploadCFTC("./data/2024-05-07_cftc.json")
 //parseCFTC();
 // const txtData = fetchCFTC();
 //getCBreport()
 
 //createCFTC()
+function getFridayFromDate(dateString) {
+  const date = new Date(dateString);
+  const dayOfWeek = date.getDay(); // Get day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+
+  // Check if the day is Tuesday (2)
+  if (dayOfWeek !== 2) {
+      console.error('The provided date is not a Tuesday:', dateString);
+      return null;
+  }
+  // Calculate the corresponding Friday date (Tuesday + 3 days)
+  date.setDate(date.getDate() + 3);
+  return date.toISOString().split('T')[0]; // Format the date as 'YYYY-MM-DD'
+}
+
 async function batchCFTC(year) {
   try {
     const urls = cotURLs(year);
@@ -249,4 +288,32 @@ async function batchCFTC(year) {
   }
 }
 
-readTxt("./f_2023.txt")
+
+async function getWeeklyClose() {
+  let filePath = "./HistoricalData_1713843702690.csv";
+  const weekCloseDates = getAllWeekday("2023",5)
+  console.log(weekCloseDates)
+  const csv = new CSV(null,filePath);
+  const results = [];
+  //console.log(weekCloseDates)
+  return await csv.parse((data,error) => {
+    data.reduce((memo,acc) => {
+      if (weekCloseDates.includes(acc.Date)) {
+        results.push(memo);
+      }
+      return memo;
+    },[]);
+    //console.log(data);
+  });
+}
+//processFile("./f2023.txt","nq");
+//console.log(getAllWeekday("2023",5))
+async function processResults() {
+  try {
+    const results = await getWeeklyClose();
+    //console.log(results); // Now results should correctly contain the array from the CSV parsing
+  } catch (error) {
+    console.error('Error processing CSV data:', error);
+  }
+}
+processResults()

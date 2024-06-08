@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/router';
 import {useDispatch,useSelector} from 'react-redux';
 import { CotTable } from "@/components/tables/cot-tables/cot-table";
@@ -14,13 +14,14 @@ type paramsProps = {
 
 export default function page({ searchParams: paramsProps }) {
   const dispatch = useDispatch();
+  const [dateStr,setDateStr] = useState("");
   const { status, reports, error } = useSelector((state) => state.cotReports);
-  const router = useRouter();
-
+  
   useEffect(() => {
-    const { date } = router.query;
-    console.log("date", date);
-    const dateStr = date?.[0] || "2024-03-12";
+    //const { date } = router.query;
+    console.log("date inside");
+    const dateStr = "2024-05-07";
+    setDateStr(dateStr)
     dispatch(fetchCOTReportAction({from:dateStr,to:dateStr}))
   },[dispatch])
   
@@ -37,6 +38,7 @@ export default function page({ searchParams: paramsProps }) {
   return (
     <>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <h1>{dateStr.length > 0 ? dateStr : null}</h1>
         <CotTable
           data={reports}
         />

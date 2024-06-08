@@ -2,7 +2,6 @@
 https://site.financialmodelingprep.com/developer/docs
 working from this site
 */
-
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -12,6 +11,7 @@ const { CSV } = require('./csv');
 const { restClient } = require('@polygon.io/client-js');
 const { table } = require('console');
 require('dotenv').config({path:'../.env'});
+
 class FinancialReportsAPI extends RESTDataSource { 
   constructor() {
     if (FinancialReportsAPI.instance) {
@@ -222,6 +222,15 @@ async function fetchCOT() {
   console.log("got cot",res )
   return res;
 }
+
+
+
+
+// Example usage for the year 2023
+// const year = 2023;
+// const tuesdaysOfYear = getAllTuesdays(year);
+// console.log(tuesdaysOfYear);
+
 
 //console.log("supaKey",process.env);
 //fetchCOT()
